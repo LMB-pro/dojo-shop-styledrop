@@ -1,0 +1,91 @@
+========================================
+MODE CADEAU - DOCUMENTATION
+========================================
+
+VUE D'ENSEMBLE
+--------------
+Le mode cadeau permet a un client d'acheter un produit pour l'offrir a un proche, sans reveler le prix et avec une adresse de livraison differente de la sienne.
+
+Fichier modifie : src/pages/Checkout.tsx
+Ajout : ~165 lignes
+Commit : feat(checkout): add gift mode with hidden price and dedicated delivery address
+
+
+CE QUI A ETE AJOUTE
+-------------------
+
+1. UN ETAT "MODE CADEAU"
+
+Au chargement de la page checkout, le mode cadeau est desactive par defaut. Un etat React (isGift) suit si la case est cochee ou non.
+
+   const [isGift, setIsGift] = useState(false);
+
+
+2. UNE NOUVELLE SECTION "CADEAU" DANS LE FORMULAIRE
+
+Placee entre Shipping information et Payment, elle contient :
+
+  - Une case a cocher "C'est un cadeau" avec un descriptif court
+  - Quand activee, un bloc revele :
+      * Un champ message cadeau (textarea, 300 caracteres max)
+      * Un sous-bloc adresse de livraison du destinataire :
+          - Nom du destinataire
+          - Adresse
+          - Ville
+          - Code postal
+          - Pays (pre-rempli sur "France")
+
+Tous les champs cadeau sont obligatoires uniquement si la case est cochee.
+
+
+3. UN INDICATEUR DANS LE RESUME DE COMMANDE
+
+Quand le mode cadeau est actif, un bandeau rose apparait dans le recapitulatif :
+
+   "Mode cadeau active - les prix seront masques sur le bon de livraison."
+
+Aujourd'hui c'est purement visuel - le bon de livraison reel n'est pas encore implemente.
+
+
+4. SAUVEGARDE DES DONNEES DANS LA COMMANDE
+
+Quand l'utilisateur valide, les infos cadeau sont ajoutees a la commande envoyee a l'API :
+
+   gift: {
+     isGift: true,
+     giftMessage: "...",
+     giftRecipientName: "...",
+     giftAddress: "...",
+     giftCity: "...",
+     giftPostalCode: "...",
+     giftCountry: "France",
+   }
+
+Si le mode cadeau n'est pas active : gift: { isGift: false }.
+
+
+CRITERES D'ACCEPTATION COUVERTS
+-------------------------------
+[x] L'utilisateur peut activer/desactiver le mode cadeau via une case a cocher
+[x] Quand active, un champ message s'affiche
+[x] Quand active, des champs d'adresse de livraison differente s'affichent
+[x] La commande est sauvegardee avec ces informations
+[x] Un indicateur visible confirme que le mode est actif
+
+
+LIMITES CONNUES / RESTE A FAIRE
+-------------------------------
+- Bon de livraison : aujourd'hui le prix n'est masque que visuellement dans l'UI. La vraie suppression du prix sur le bon de livraison physique necessitera une modification cote logistique.
+- Email destinataire : pas de champ email pour le destinataire - l'email de confirmation va a l'acheteur uniquement.
+- Personnalisation visuelle du message : aujourd'hui un simple textarea - on pourrait imaginer plusieurs templates ("Joyeux anniversaire", "Bienvenue", etc.).
+- Frais d'emballage cadeau : pas de surcout ajoute pour le moment.
+
+
+USE CASE BUSINESS
+-----------------
+Cible : les consultants eXalt qui veulent offrir un goodie a un client, un nouveau collegue, ou un partenaire - sans passer par un mecanisme manuel.
+
+Benefices attendus :
+- Augmentation du panier moyen (achats relationnels B2B)
+- Elargissement de la cible (achats non-personnels)
+- Reduction du churn cognitif (plus besoin de re-saisir l'adresse perso a chaque fois)
