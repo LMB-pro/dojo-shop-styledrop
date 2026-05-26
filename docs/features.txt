@@ -1,0 +1,350 @@
+================================================
+EXALT SHOP - DOCUMENTATION COMPLETE DES FEATURES
+================================================
+
+Derniere mise a jour : 2026-05-26
+Branche : main (apres merge PR #1)
+
+
+SOMMAIRE
+--------
+1.  Catalogue produits
+2.  Fiche produit
+3.  Panier
+4.  Checkout
+5.  Mode cadeau                     [NOUVEAU - PR #1]
+6.  Homepage
+7.  Recherche
+8.  Authentification
+9.  Profil utilisateur
+10. Historique commandes
+11. Confirmation commande
+12. Mode sombre (Dark Mode)         [NOUVEAU - PR #1]
+
+
+================================================
+1. CATALOGUE PRODUITS
+================================================
+
+Zone : /shop
+Fichier : src/pages/Shop.tsx, src/components/ShopFilterAndSort.tsx
+
+DESCRIPTION
+-----------
+Liste paginee des produits avec :
+  - Filtres par categorie (Vetements, Accessoires, Papeterie, Edition Limitee)
+  - Tri : Par defaut / Popularite / Prix croissant / Prix decroissant
+  - Affichage du nombre de resultats
+
+VALEUR BUSINESS : tres haute (point d'entree principal vers l'achat)
+FREQUENCE USAGE : tres haute
+
+LIMITES
+-------
+- Pas de filtre par prix (min/max)
+- Pas de filtre par disponibilite stock
+- Pas de filtre par taille/couleur
+
+
+================================================
+2. FICHE PRODUIT
+================================================
+
+Zone : /product/:id
+Fichier : src/pages/SingleProduct.tsx
+
+DESCRIPTION
+-----------
+Page detaillee d'un produit avec :
+  - Image du produit
+  - Titre, categorie, prix
+  - Selecteurs : taille (XS a 2XL), couleur (6 options), quantite
+  - Bouton "Add to cart"
+  - Estimation de livraison
+  - Dropdowns : Description, Product Details, Delivery Details
+  - Section "Similar Products" (3 produits)
+
+VALEUR BUSINESS : tres haute (etape de conversion cle)
+FREQUENCE USAGE : tres haute
+
+LIMITES
+-------
+- Descriptions en Lorem ipsum (faux contenu)
+- Date de livraison codee en dur ("Friday, July 26")
+- Stock non affiche : on peut ajouter au panier un produit en rupture
+- "Similar Products" = 3 premiers produits du catalogue, pas vraiment "similaires"
+
+
+================================================
+3. PANIER
+================================================
+
+Zone : /cart
+Fichier : src/pages/Cart.tsx, src/features/cart/cartSlice.tsx
+
+DESCRIPTION
+-----------
+Recapitulatif des articles ajoutes :
+  - Liste des produits (image, titre, couleur, taille, quantite, prix)
+  - Suppression d'article
+  - Calcul automatique du sous-total
+  - Bouton vers le checkout
+
+VALEUR BUSINESS : tres haute
+FREQUENCE USAGE : haute
+
+LIMITES
+-------
+- Pas de modification de quantite dans le panier
+- Pas de sauvegarde du panier pour les utilisateurs non connectes
+- Pas de "wishlist" / liste d'envies
+
+
+================================================
+4. CHECKOUT
+================================================
+
+Zone : /checkout
+Fichier : src/pages/Checkout.tsx
+
+DESCRIPTION
+-----------
+Formulaire de commande en une page :
+  - Contact information (email)
+  - Shipping information (nom, adresse, ville, region, code postal, telephone)
+  - Mode cadeau (voir section 5)
+  - Payment (carte / PayPal / eTransfer + champs CB)
+  - Order summary (recapitulatif articles + sous-total + livraison + taxes + total)
+  - Bouton "Confirm Order"
+
+Mode invite supporte : l'achat fonctionne sans compte utilisateur.
+
+VALEUR BUSINESS : tres haute (conversion finale)
+FREQUENCE USAGE : haute
+
+LIMITES
+-------
+- Pays limites a US / Canada / Mexique - inutilisable pour la France !
+- Pas de validation cote serveur des donnees de paiement
+- Frais de livraison fixes (5 EUR), pas adaptes au pays/poids
+- Pas d'integration paiement reelle (mock)
+
+
+================================================
+5. MODE CADEAU                              [NOUVEAU]
+================================================
+
+Zone : /checkout (section dediee)
+Fichier : src/pages/Checkout.tsx
+PR : #1
+
+DESCRIPTION
+-----------
+Permet d'acheter un produit pour l'offrir :
+  - Case a cocher "C'est un cadeau" dans le checkout
+  - Champ message personnalise (300 caracteres max)
+  - Adresse de livraison destinataire independante :
+      * Nom du destinataire
+      * Adresse, ville, code postal, pays
+  - Indicateur visuel dans le resume de commande
+  - Donnees sauvegardees avec la commande sous l'objet "gift"
+
+VALEUR BUSINESS : haute (panier moyen, B2B, cadeaux clients/collegues)
+FREQUENCE USAGE : moyenne (cas relationnel)
+
+LIMITES
+-------
+- Le masquage du prix est purement visuel cote UI - pas encore propage au bon de livraison physique
+- Pas de champ email du destinataire (la confirmation va a l'acheteur)
+- Pas de templates de message pre-faits
+- Pas de surcout d'emballage cadeau
+
+
+================================================
+6. HOMEPAGE
+================================================
+
+Zone : /
+Fichier : src/pages/Landing.tsx
+Composants : Banner, CategoriesSection, HomeCollectionSection
+
+DESCRIPTION
+-----------
+Page d'accueil du site :
+  - Banniere hero
+  - Section collection mise en avant
+  - Section categories (4 cartes : Vetements, Accessoires, Papeterie, Edition Limitee)
+
+VALEUR BUSINESS : haute (premiere impression, engagement)
+FREQUENCE USAGE : haute
+
+LIMITES
+-------
+- Pas de produits en vedette dynamiques (top ventes, promos, nouveautes)
+- Pas de personnalisation selon l'utilisateur connecte
+- Pas de CTA clair "voir tous les produits"
+
+
+================================================
+7. RECHERCHE
+================================================
+
+Zone : /search
+Fichier : src/pages/Search.tsx
+
+DESCRIPTION
+-----------
+Recherche textuelle sur les produits du catalogue.
+
+VALEUR BUSINESS : haute (aide a la conversion sur intention forte)
+FREQUENCE USAGE : moyenne
+
+LIMITES
+-------
+- A tester en profondeur (resultats non valides en revue)
+- Pas de suggestions / autocompletion
+- Pas de gestion des fautes de frappe
+
+
+================================================
+8. AUTHENTIFICATION
+================================================
+
+Zone : /login, /register
+Fichier : src/pages/Login.tsx, src/pages/Register.tsx
+
+DESCRIPTION
+-----------
+Inscription et connexion utilisateur via email + mot de passe.
+
+VALEUR BUSINESS : moyenne (fidelisation, retention)
+FREQUENCE USAGE : moyenne
+
+LIMITES
+-------
+- Pas de reinitialisation de mot de passe
+- Pas de connexion via reseaux sociaux / SSO
+- Pas de verification email
+- Mots de passe stockes sans hashage cote mock API
+
+
+================================================
+9. PROFIL UTILISATEUR
+================================================
+
+Zone : /user-profile
+Fichier : src/pages/UserProfile.tsx
+
+DESCRIPTION
+-----------
+Page de gestion du compte :
+  - Modification des informations personnelles
+  - Bouton de deconnexion
+
+VALEUR BUSINESS : moyenne
+FREQUENCE USAGE : basse (mode invite supporte au checkout)
+
+LIMITES
+-------
+- Pas de gestion des adresses sauvegardees
+- Pas de gestion des moyens de paiement
+- Pas de preferences (newsletter, langue, etc.)
+
+
+================================================
+10. HISTORIQUE COMMANDES
+================================================
+
+Zone : /order-history, /order-history/:id
+Fichier : src/pages/OrderHistory.tsx, src/pages/SingleOrderHistory.tsx
+
+DESCRIPTION
+-----------
+Liste des commandes passees avec date, total et statut.
+Detail d'une commande accessible au clic.
+
+VALEUR BUSINESS : moyenne (reassurance, rachat)
+FREQUENCE USAGE : basse
+
+LIMITES
+-------
+- BUG : la page recupere TOUTES les commandes, pas seulement celles de l'utilisateur connecte
+- Pas de filtre par date / statut
+- Pas de relance "racheter ce produit"
+
+
+================================================
+11. CONFIRMATION COMMANDE
+================================================
+
+Zone : /order-confirmation
+Fichier : src/pages/OrderConfirmation.tsx
+
+DESCRIPTION
+-----------
+Page affichee apres validation d'une commande.
+
+VALEUR BUSINESS : haute (rassurance post-achat, NPS)
+FREQUENCE USAGE : basse (1 fois par commande)
+
+LIMITES
+-------
+- Pas d'email de confirmation envoye
+- Pas de numero de commande / suivi visible
+- Pas de cross-sell "vous pourriez aimer aussi..."
+
+
+================================================
+12. MODE SOMBRE (DARK MODE)                 [NOUVEAU]
+================================================
+
+Zone : transverse (toute l'app)
+Fichiers :
+  - src/hooks/useDarkMode.ts (hook)
+  - src/components/Header.tsx (toggle)
+  - tailwind.config.js (activation)
+  - src/index.css (styles globaux)
+PR : #1
+
+DESCRIPTION
+-----------
+Theme clair / sombre pour l'interface :
+  - Toggle soleil/lune dans le header
+  - Persistance localStorage entre sessions
+  - Detection automatique de la preference systeme au premier chargement
+  - Transitions fluides entre les deux modes
+
+VALEUR BUSINESS : moyenne (confort utilisateur, modernite)
+FREQUENCE USAGE : transverse
+
+LIMITES
+-------
+- Couverture partielle : seuls le body et le header sont stylises en dark - les pages internes (catalogue, fiche produit, checkout...) restent en clair
+- Pas de bouton "Auto" (suivre la preference systeme en continu)
+- Necessite une passe de design pour atteindre une couverture complete
+
+
+================================================
+SYNTHESE - PRIORITES PM
+================================================
+
+BLOQUANT (a corriger en priorite)
+---------------------------------
+- Checkout : pays limites a US/Canada/Mexique (rend l'achat impossible en France)
+- Fiche produit : stock non affiche, possible d'ajouter un produit en rupture
+- Historique commandes : recupere les commandes de tous les utilisateurs
+
+A AMELIORER (impact conversion)
+-------------------------------
+- Descriptions produit en Lorem ipsum
+- Date de livraison codee en dur
+- Pas d'email de confirmation
+- Panier : impossible de modifier la quantite
+
+A ETENDRE (post-MVP)
+--------------------
+- Dark mode : couverture des pages internes
+- Mode cadeau : email destinataire, templates de message
+- Filtres catalogue : prix, taille, disponibilite
+- Recherche : suggestions et autocompletion
+- Profil : adresses sauvegardees, moyens de paiement
