@@ -1,0 +1,78 @@
+========================================
+MODE SOMBRE (DARK MODE) - DOCUMENTATION
+========================================
+
+VUE D'ENSEMBLE
+--------------
+Le mode sombre permet a l'utilisateur de basculer l'interface entre theme clair et theme sombre. La preference est memorisee d'une visite a l'autre, et le mode initial respecte la preference systeme de l'utilisateur si aucune valeur n'a ete enregistree.
+
+Fichiers modifies/crees :
+  - tailwind.config.js        (active darkMode: "class")
+  - src/index.css             (styles globaux body + transitions)
+  - src/hooks/useDarkMode.ts  (NOUVEAU - hook de gestion du theme)
+  - src/hooks/index.ts        (export du hook)
+  - src/components/Header.tsx (toggle soleil/lune)
+
+
+CE QUI A ETE AJOUTE
+-------------------
+
+1. UN HOOK useDarkMode
+
+Centralise la logique du theme :
+  - Lecture initiale : localStorage > preference systeme > "light"
+  - Application : ajoute/retire la classe "dark" sur <html>
+  - Persistance : ecriture dans localStorage a chaque changement
+  - Expose : { theme, toggleTheme }
+
+   const { theme, toggleTheme } = useDarkMode();
+
+
+2. UN TOGGLE DANS LE HEADER
+
+A cote des icones recherche / utilisateur / panier, un nouveau bouton :
+  - Icone Lune (HiOutlineMoon) en mode clair
+  - Icone Soleil (HiOutlineSun) en mode sombre
+  - Au clic, bascule le theme et persiste le choix
+
+Accessibilite : attribut aria-label dynamique ("Activer le mode sombre" / "Activer le mode clair").
+
+
+3. STYLES GLOBAUX
+
+Le body recoit :
+  - Couleur de fond claire par defaut (#ffffff)
+  - Couleur sombre quand <html class="dark"> (#0f1117)
+  - Transition fluide de 0.2s entre les deux
+
+Le logo du header est inverse en mode sombre (dark:invert) pour rester lisible.
+
+
+4. ACTIVATION TAILWIND
+
+   darkMode: "class"  // active les variantes dark: dans tout le projet
+
+
+CRITERES D'ACCEPTATION COUVERTS
+-------------------------------
+[x] L'utilisateur peut basculer entre clair et sombre via un bouton dans le header
+[x] La preference est memorisee entre les sessions (localStorage)
+[x] Le mode initial respecte la preference systeme si rien n'est enregistre
+[x] L'icone reflete le mode actuel (soleil si dark, lune si light)
+
+
+LIMITES CONNUES / RESTE A FAIRE
+-------------------------------
+- Couverture des pages : seuls le body et le header ont leurs styles dark. Les composants internes (cartes produit, formulaires, pages individuelles) gardent leurs couleurs claires pour le moment. Une passe de design est necessaire pour atteindre une couverture complete.
+- Transition images : un simple filtre brightness est applique aux images en mode sombre - peut etre raffine selon les visuels.
+- Pas de bouton "Auto" (suivre la preference systeme en continu) - le clic utilisateur fige le choix.
+
+
+USE CASE BUSINESS
+-----------------
+Cible : tous les utilisateurs.
+
+Benefices attendus :
+- Confort visuel pour les navigations en environnement sombre / en soiree
+- Aligne le storefront sur les standards d'experience modernes
+- Reduction de la fatigue oculaire sur les sessions longues

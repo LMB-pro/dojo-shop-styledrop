@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { HiTrash as TrashIcon } from "react-icons/hi2";
 import { Button } from "../components";
 import { useAppDispatch, useAppSelector } from "../hooks";
@@ -36,16 +37,30 @@ const Checkout = () => {
   const { productsInCart, subtotal } = useAppSelector((state) => state.cart);
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
+  const [isGift, setIsGift] = useState(false);
 
   const handleCheckoutSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     const data = Object.fromEntries(formData);
 
+    const gift = isGift
+      ? {
+          isGift: true,
+          giftMessage: data.giftMessage || "",
+          giftRecipientName: data.giftRecipientName || "",
+          giftAddress: data.giftAddress || "",
+          giftCity: data.giftCity || "",
+          giftPostalCode: data.giftPostalCode || "",
+          giftCountry: data.giftCountry || "",
+        }
+      : { isGift: false };
+
     const checkoutData = {
       data,
       products: productsInCart,
       subtotal: subtotal,
+      gift,
     };
 
     if (!checkCheckoutFormData(checkoutData)) return;
@@ -311,6 +326,149 @@ const Checkout = () => {
               </div>
             </div>
 
+            {/* Gift mode */}
+            <div className="mt-10 border-t border-gray-200 pt-10">
+              <div className="flex items-start gap-3">
+                <input
+                  id="is-gift"
+                  name="isGift"
+                  type="checkbox"
+                  checked={isGift}
+                  onChange={(e) => setIsGift(e.target.checked)}
+                  className="mt-1 h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                />
+                <label htmlFor="is-gift" className="block">
+                  <span className="text-lg font-medium text-gray-900">
+                    C'est un cadeau 🎁
+                  </span>
+                  <span className="block text-sm text-gray-500">
+                    Le prix sera masqué sur le bon de livraison. Ajoute un message
+                    et une adresse de livraison dédiée.
+                  </span>
+                </label>
+              </div>
+
+              {isGift && (
+                <div className="mt-6 grid grid-cols-1 gap-y-6 sm:grid-cols-2 sm:gap-x-4">
+                  <div className="sm:col-span-2">
+                    <label
+                      htmlFor="gift-message"
+                      className="block text-sm font-medium text-gray-700"
+                    >
+                      Message cadeau
+                    </label>
+                    <div className="mt-1">
+                      <textarea
+                        id="gift-message"
+                        name="giftMessage"
+                        rows={3}
+                        maxLength={300}
+                        placeholder="Ex : Joyeux anniversaire ! De la part de toute l'équipe eXalt."
+                        className="block w-full py-2 px-2 border-gray-300 outline-none focus:border-gray-400 border shadow-sm sm:text-sm"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="sm:col-span-2">
+                    <h3 className="text-sm font-medium text-gray-900">
+                      Adresse de livraison du destinataire
+                    </h3>
+                  </div>
+
+                  <div className="sm:col-span-2">
+                    <label
+                      htmlFor="gift-recipient-name"
+                      className="block text-sm font-medium text-gray-700"
+                    >
+                      Nom du destinataire
+                    </label>
+                    <div className="mt-1">
+                      <input
+                        type="text"
+                        name="giftRecipientName"
+                        id="gift-recipient-name"
+                        className="block w-full py-2 indent-2 border-gray-300 outline-none focus:border-gray-400 border shadow-sm sm:text-sm"
+                        required={isGift}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="sm:col-span-2">
+                    <label
+                      htmlFor="gift-address"
+                      className="block text-sm font-medium text-gray-700"
+                    >
+                      Adresse
+                    </label>
+                    <div className="mt-1">
+                      <input
+                        type="text"
+                        name="giftAddress"
+                        id="gift-address"
+                        className="block w-full py-2 indent-2 border-gray-300 outline-none focus:border-gray-400 border shadow-sm sm:text-sm"
+                        required={isGift}
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label
+                      htmlFor="gift-city"
+                      className="block text-sm font-medium text-gray-700"
+                    >
+                      Ville
+                    </label>
+                    <div className="mt-1">
+                      <input
+                        type="text"
+                        name="giftCity"
+                        id="gift-city"
+                        className="block w-full py-2 indent-2 border-gray-300 outline-none focus:border-gray-400 border shadow-sm sm:text-sm"
+                        required={isGift}
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label
+                      htmlFor="gift-postal-code"
+                      className="block text-sm font-medium text-gray-700"
+                    >
+                      Code postal
+                    </label>
+                    <div className="mt-1">
+                      <input
+                        type="text"
+                        name="giftPostalCode"
+                        id="gift-postal-code"
+                        className="block w-full py-2 indent-2 border-gray-300 outline-none focus:border-gray-400 border shadow-sm sm:text-sm"
+                        required={isGift}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="sm:col-span-2">
+                    <label
+                      htmlFor="gift-country"
+                      className="block text-sm font-medium text-gray-700"
+                    >
+                      Pays
+                    </label>
+                    <div className="mt-1">
+                      <input
+                        type="text"
+                        name="giftCountry"
+                        id="gift-country"
+                        defaultValue="France"
+                        className="block w-full py-2 indent-2 border-gray-300 outline-none focus:border-gray-400 border shadow-sm sm:text-sm"
+                        required={isGift}
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
             {/* Payment */}
             <div className="mt-10 border-t border-gray-200 pt-10">
               <h2 className="text-lg font-medium text-gray-900">Payment</h2>
@@ -431,6 +589,13 @@ const Checkout = () => {
           {/* Order summary */}
           <div className="mt-10 lg:mt-0">
             <h2 className="text-lg font-medium text-gray-900">Order summary</h2>
+
+            {isGift && (
+              <div className="mt-3 p-3 bg-pink-50 border border-pink-200 text-sm text-pink-900">
+                🎁 Mode cadeau activé — les prix seront masqués sur le bon de
+                livraison.
+              </div>
+            )}
 
             <div className="mt-4 border border-gray-200 bg-white shadow-sm">
               <h3 className="sr-only">Items in your cart</h3>
